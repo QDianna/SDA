@@ -1,4 +1,4 @@
-/* ANA Elena-Diana - 311CB */
+# Tema 1 - File System
 
 -- main --
 Creez folderul root.
