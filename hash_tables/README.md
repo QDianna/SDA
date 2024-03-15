@@ -1,5 +1,4 @@
-/* ANA Elena-Diana - 311CB */
-
+# Tema 2 - Hash Tables
 
 Citesc din fisierul primit ca argument, linie cu linie. In variabila "instruct" retin primul cuvant de pe linie, care determina functionalitatea programului (insert/print).
 - Functionalitatea de insert:
