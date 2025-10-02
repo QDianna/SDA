@@ -1,25 +1,66 @@
-# Tema 2 - Hash Tables
+# Tema 2 – Hash Tables
 
-Citesc din fisierul primit ca argument, linie cu linie. In variabila "instruct" retin primul cuvant de pe linie, care determina functionalitatea programului (insert/print).
-- Functionalitatea de insert:
-  Citesc cuvant cu cuvant de pe linie si stochez - cuvantul, lungimea si numarul de aparitii - intr-o lista auxiliara. Daca celula pentru cuvantul curent a fost creata anterior, ma deplasez cu un pointer la celula respectiva si incrementez numarul de aparitii. In caz contrar, adaug o noua celula si stochez informatia.
+Proiect realizat pentru cursul **Structuri de Date și Algoritmi**.  
+Scopul este implementarea unei **tabele hash** care stochează cuvinte și permite inserarea și afișarea lor în funcție de diferite criterii.  
 
-- Functionalitatea de print:
-  Initial, generez TH cu elementele stocate anterior in lista auxiliara.
-  -> Generarea TH
-     Tabela va contine un vector cu un numar de elemente "M" (egal cu numarul de litere din alfabet), numarul "M" si (pointer la) functia care intoarce codul hash (corespunzator fiecarui element pe care vrem sa il inseram in TH). Generarea tabelei presupune: initializarea si alocarea de memorie pentru aceste elemente + inserarea fiecarui cuvant din lista auxiliara in TH. Aloc memorie pentru TH si pentru vectorul "v" din TH (care are dimensiunea a "M" liste generice).
-     Pentru inserare, este parcursa lista auxiliara, fiecarui cuvant fiindu-i atribuita o valoare corespunzatoare codificarii hash (in acest caz, pozitia in alfabet a initialei cuvantului). Valoarea/codul hash reprezinta pozitia din vectorul "v" al TH la care se afla lista "L1", in care va fi inserata informatia despre element. Elementele aceastei liste "L1" vor contine 2 informatii: o lungime si o alta lista "L2", ale carei elemente retin cuvintele (de acea lungime) si numarul de aparitii ale acestora.
-     Initial, informatia elementului curent (din lista auxiliara) este pasata functiei "InsL1". Daca exista deja o celula pentru lungimea cuvantului curent (CAZ 2), informatia este trimisa mai departe functiei "InsL2" - deoarece nu este necesara crearea unui element nou in lista "L1", ci doar inserarea cuvantului si a aparitiilor sale in lista "L2" a celulei respective. In caz contrar (atat pentru o lista initial nula - CAZ 1, cat si pentru una nenula - CAZ 3) aloc memorie pentru o noua celula "aux", si stochez informatia: lungimea cuvantului curent + cuvantul si aparitiile acestuia, pastrate in lista "L2". Atat inserarea in "L2" cat si cea in "L1" respecta ordinea elementelor descrisa in enunt.
+## Descriere generală
+- Programul citește instrucțiuni dintr-un fișier de input.  
+- Fiecare linie conține o comandă (`insert`, `print`) și eventual parametri suplimentari.  
+- Se folosește o **listă auxiliară** pentru stocarea inițială a cuvintelor, apoi acestea sunt introduse în tabela hash.  
 
-  -> Printarea TH
-    Urmatorul pas este sa verific daca printarea este conditionata - adica daca gasesc parametrii de printare pe linia cu instructiunea "print"
-    Daca nu exista, se face printarea standard a TH care foloseste 2 functii specifice de printare element: una pentru "L1" ("afiseazaL1") - care afiseaza lungimea si lista de cuvinte "L2", si una pentru aceasta lista "L2" ("afiseazaL2") - care afiseaza cuvantul si numarul de aparitii.
-    Daca exista un singur parametru, acesta este frecventa maxima a cuvintelor care vor fi afisate; pentru aceasta afisare parcurg elementele listei "L1" si apelez functia "afiseaza_caz1" care, la randul sau, parcurge lista de cuvinte "L2" si afiseaza doar elementele cu frecventa < frecventa maxima. Pentru afisarea corecta este nevoie, in primul rand, de un semafor "ok_pos" care determina daca trebuie sa afisam sau nu pozitia in vectorul "v" (pozitia se afiseaza doar in cazul in care am gasit un element care respecta conditia de frecventa); tot acest semafor determina daca este nevoie sa se printeze un enter (daca nu a fost printat nimic la pozitia curenta, nu trebuie sa afisam o linie libera). In al doilea rand, semaforul "ok_len" determina daca printam lungimea elementelor, parantezele si virgulele.
-    Daca exista 2 parametrii, acestia sunt initiala si lungimea cuvintelor care vor fi afisate. Folosesc un pointer la lista "L1" de la pozitia data (de initiala) in "v", parcurg lista si daca gasesc elementul de lungime egala cu lungimea data, parcurg lista de cuvinte "L2" din interiorul acestuia si afisez cuvintele + aparitiile. (ok_enter este un semafor care determina daca avem nevoie de enter dupa afisare - doar daca am afisat elemente)
+## Funcționalități implementate
 
-  -> Dezalocarea
-    Dupa fiecare printare a tabelei, pentru a evita memory leaks, dezaloc memoria TH. Parcurg vectorul "v" si, pentru fiecare element de tip lista "L1", apelez functia "elibL1" pentru a dezaloca informatia din celula, apoi eliberez celula propriu-zisa a listei. 
-    In functia "elibL1" eliberez in primul rand informatia celulei din lista "L1". Aceasta presupune dezalocarea listei de cuvinte "L2". Asadar, parcurg lista "L2" si ii dezaloc fiecare celula prin functia "elibL2" (se elibereaza intai memoria informatiei din celula - stringul alocat dinamic ce retine cuvantul - apoi intreaga structura de informatie). Eliberez ulterior celula propriu-zisa a listei "L2"
-    Nu in ultimul rand, eliberez vectorul "v" si tabela hash (pe care o reinitializez cu NULL)
-    La final, dezaloc si lista auxiliara folosita la citire; parcurg fiecare element al listei, eliberez informatia prin functia "elibL_aux" (care dezaloca stringul alocat dinamic pentru nume, apoi intreaga structura de informatie), eliberand ulterior intreaga celula a listei. 
+### Insert
+- Se citesc cuvintele de pe linia de input.  
+- Pentru fiecare cuvânt se salvează:
+  - valoarea stringului,  
+  - lungimea,  
+  - numărul de apariții.  
+- Dacă cuvântul există deja, se incrementează numărul de apariții.  
+- Dacă nu există, se creează o celulă nouă.  
 
+### Generarea tabelei hash
+- Tabela conține:  
+  - un vector de `M` elemente (unde `M = numărul de litere din alfabet`),  
+  - numărul `M`,  
+  - pointer la funcția de hash.  
+- Inserarea:  
+  - Hash-ul este determinat de inițiala cuvântului.  
+  - În vectorul `v`, fiecare poziție corespunde unei liste `L1`.  
+  - Lista `L1` conține elemente grupate după **lungimea cuvintelor**.  
+  - Fiecare element din `L1` are o listă `L2`, ce stochează efectiv cuvintele și numărul lor de apariții.  
+- Funcții folosite:  
+  - `InsL1` – inserează în lista de lungimi,  
+  - `InsL2` – inserează cuvântul în lista de cuvinte cu aceeași lungime.  
+
+### Print
+- Dacă nu există parametri → printare standard (toată tabela).  
+- Dacă există **1 parametru** (frecvența maximă):  
+  - se afișează doar cuvintele cu frecvență `< frecvența dată`.  
+- Dacă există **2 parametri** (inițială + lungime):  
+  - se afișează doar cuvintele corespunzătoare.  
+- Afișarea folosește funcții dedicate:  
+  - `afiseazaL1` pentru lista de lungimi,  
+  - `afiseazaL2` pentru lista de cuvinte.  
+- Se folosesc semafoare logice (`ok_pos`, `ok_len`, `ok_enter`) pentru a controla formatul afișării.  
+
+### Dezalocarea memoriei
+- După fiecare printare tabela hash este eliberată pentru a evita memory leaks.  
+- Etape:  
+  - parcurgerea vectorului `v`,  
+  - eliberarea listelor `L1` și `L2` cu funcțiile `elibL1` și `elibL2`,  
+  - eliberarea vectorului `v` și a structurii tabelei,  
+  - eliberarea listei auxiliare de la citire.  
+
+## Tehnologii și concepte
+- **C** pentru implementare.  
+- **Hashing** cu funcție simplă (inițiala cuvântului).  
+- **Liste generice** pentru gestionarea coliziunilor.  
+- **Grupare pe criterii** (lungime, apariții).  
+- **Gestionarea memoriei** (alocare/dezalocare).  
+
+## Concluzie
+Tema demonstrează implementarea unei structuri **Hash Table cu liste de adiacență**, care permite:  
+- inserarea rapidă a cuvintelor,  
+- afișarea condiționată după frecvență, inițială sau lungime,  
+- eliberarea completă a memoriei.  
